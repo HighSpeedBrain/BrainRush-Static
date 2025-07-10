@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white font-mono">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Schulte Table</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Schulte Table – Brain Rush</title>
   <link href="../Lib/tailwind.min.css" rel="stylesheet" />
   <link rel="icon" href="../assets/favicon.ico" />
   <style>
@@ -13,54 +13,74 @@
     }
   </style>
 </head>
-<body class="p-8 flex flex-col items-center min-h-screen">
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
-  <button id="backBtn"
-    class="mb-6 text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
-    aria-label="Back to Minigame Hub">← Back to Hub</button>
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-10 w-full">
+    <div class="max-w-4xl mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <img src="../assets/favicon.ico" alt="Brain Rush Logo" class="w-10 h-10" />
+        <h1 class="text-2xl font-bold text-blue-700 tracking-tight">Schulte Table</h1>
+      </div>
+      <button onclick="location.href='../index.html'" class="text-sm text-blue-500 font-medium">
+        ← Back to Hub
+      </button>
+    </div>
+  </header>
 
-  <h1 class="mb-2 text-2xl font-semibold text-center text-gray-900">Schulte Table</h1>
-  <p class="mb-4 text-gray-700">Click numbers in order as fast as you can!</p>
+  <!-- Main content wrapper -->
+<main class="flex-grow flex justify-center mt-4 px-4">
+    <div class="w-full max-w-xl flex flex-col items-center">
 
-  <!-- Difficulty Buttons -->
-  <div class="flex gap-4 mb-6">
-    <button data-diff="easy" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Easy</button>
-    <button data-diff="medium" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Medium</button>
-    <button data-diff="hard" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Hard</button>
-  </div>
+      <p class="mb-4 text-gray-700 text-center">Click numbers in order as fast as you can!</p>
 
-  <div class="mb-4 text-lg font-semibold text-gray-900">
-    Time: <span id="timer">0.00</span> seconds
-  </div>
-  <div class="mb-6 text-lg font-semibold text-gray-900">
-    Best Time: <span id="best-time">--</span> seconds
-  </div>
+      <!-- Difficulty Buttons -->
+      <div id="difficultyButtons" class="flex gap-4 mb-6">
+        <button data-diff="easy" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Easy</button>
+        <button data-diff="medium" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Medium</button>
+        <button data-diff="hard" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Hard</button>
+      </div>
 
-  <button id="startBtn"
-    class="mb-8 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
-    Start Game
-  </button>
+      <div class="mb-2 text-lg font-semibold text-gray-900">
+        Time: <span id="timer">0.00</span> seconds
+      </div>
+      <div class="mb-6 text-lg font-semibold text-gray-900">
+        Best Time: <span id="best-time">--</span> seconds
+      </div>
 
-  <div id="schulte-grid"
-    class="gap-2 justify-center mb-6 hidden"
-    role="grid"
-    aria-label="Schulte Table"
-    style="display: grid;">
-  </div>
+      <button id="startBtn"
+        class="mb-8 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+        Start Game
+      </button>
 
-  <button id="restartBtn"
-    class="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 hidden">
-    Restart
-  </button>
+      <div id="schulte-grid"
+        class="gap-2 justify-center mb-6 hidden"
+        role="grid"
+        aria-label="Schulte Table"
+        style="display: grid;">
+      </div>
+
+      <button id="restartBtn"
+        class="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 hidden">
+        Restart
+      </button>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-400 mt-auto pt-4 pb-2">
+    © 2025 Brain Rush — Keep your mind sharp
+  </footer>
 
   <script>
     const grid = document.getElementById("schulte-grid");
     const timerEl = document.getElementById("timer");
     const bestTimeEl = document.getElementById("best-time");
-    const backBtn = document.getElementById("backBtn");
     const startBtn = document.getElementById("startBtn");
     const restartBtn = document.getElementById("restartBtn");
     const diffBtns = document.querySelectorAll(".diffBtn");
+    const diffBtnWrapper = document.getElementById("difficultyButtons");
 
     let gridSize = 25;
     let gridCols = 5;
@@ -112,8 +132,6 @@
 
     function renderGrid() {
       grid.innerHTML = "";
-
-      // Apply grid-template-columns via style
       grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
 
       numbers.forEach(num => {
@@ -131,22 +149,19 @@
           btn.disabled = true;
           btn.blur();
 
-          requestAnimationFrame(() => {
+          if (currentNumber === 1) startTimer();
+          currentNumber++;
+
+          if (currentNumber > gridSize) {
+            stopTimer();
             setTimeout(() => {
-              if (currentNumber === 1) startTimer();
-              currentNumber++;
-              if (currentNumber > gridSize) {
-                stopTimer();
-                setTimeout(() => {
-                  const time = parseFloat(timerEl.textContent);
-                  alert(`🎉 Your time: ${time.toFixed(2)} seconds`);
-                  const best = parseFloat(getBestTime()) || Infinity;
-                  if (time < best) setBestTime(time);
-                  restartBtn.classList.remove("hidden");
-                }, 50);
-              }
-            }, 0);
-          });
+              const time = parseFloat(timerEl.textContent);
+              alert(`🎉 Your time: ${time.toFixed(2)} seconds`);
+              const best = parseFloat(getBestTime()) || Infinity;
+              if (time < best) setBestTime(time);
+              restartBtn.classList.remove("hidden");
+            }, 50);
+          }
         });
 
         grid.appendChild(btn);
@@ -157,7 +172,7 @@
       startBtn.classList.add("hidden");
       grid.classList.remove("hidden");
       restartBtn.classList.add("hidden");
-      document.querySelector(".diffBtn").parentElement.classList.add("hidden"); // 👈 hides the diff buttons
+      diffBtnWrapper.classList.add("hidden");
       currentNumber = 1;
       timerEl.textContent = "0.00";
       if (timerInterval) clearInterval(timerInterval);
@@ -166,7 +181,6 @@
       shuffleArray(numbers);
       renderGrid();
     }
-
 
     function setDifficulty(level) {
       difficulty = level;
@@ -188,13 +202,11 @@
 
     restartBtn.addEventListener("click", startGame);
     startBtn.addEventListener("click", startGame);
-    backBtn.addEventListener("click", () => window.location.href = "../index.html");
     diffBtns.forEach(btn =>
       btn.addEventListener("click", () => setDifficulty(btn.dataset.diff))
     );
 
     setDifficulty("medium");
   </script>
-
 </body>
 </html>

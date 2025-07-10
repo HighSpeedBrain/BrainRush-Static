@@ -13,6 +13,10 @@ export function clean() {
 
 // HTML minification with full JS support
 export function html() {
+  a++
+    if (a >= 1){
+    gulp.parallel(tailwind)
+  }
   return gulp
     .src("src/**/*.html", { base: "src" })
     .pipe(
@@ -67,6 +71,7 @@ export const build = gulp.series(
 );
 
 // Watch
+let a = 1;
 export function watch() {
   gulp.watch("src/**/*.html", html);
   gulp.watch(["src/Lib/tailwind.css","./tailwind.config.js"], tailwind);

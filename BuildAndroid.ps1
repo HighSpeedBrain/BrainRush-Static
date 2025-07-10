@@ -19,8 +19,15 @@ try {
     EchoSuccess "Gulp build finished."
 
     EchoInfo "Copying assets from Source to www"
-    Copy-Item .\src\assets\ .\www
-    EchoSuccess "Assetc successfully copied"
+    # Ensure target directory exists
+    if (-Not (Test-Path .\www\assets)) {
+        New-Item -ItemType Directory -Path .\www\assets | Out-Null
+    }
+
+    # Copy assets (contents only)
+    Copy-Item .\src\assets\* .\www\assets\ -Recurse -Force
+
+    EchoSuccess "Assets successfully copied"
 
     EchoInfo "Cleaning Android www folder..."
     Remove-Item -Recurse -Force .\Android\www\* -ErrorAction Stop
