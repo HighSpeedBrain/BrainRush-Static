@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brain Rush</title>
+  <link rel="icon" href="/assets/favicon.ico" />
+  <link href="./Lib/tailwind.min.css" rel="stylesheet" />
+  <style>
+    button {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow-md py-4 px-6 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center space-x-3">
+      <img src="/assets/favicon.ico" alt="Brain Rush Logo" class="w-10 h-10" />
+      <h1 class="text-2xl font-bold text-blue-700 tracking-tight">Brain Rush</h1>
+    </div>
+    <p class="hidden sm:block text-sm text-gray-400 font-medium">Train your brain with fun challenges</p>
+  </header>
+
+  <!-- Game Cards -->
+  <main class="flex-grow px-4 sm:px-8 py-8 max-w-7xl mx-auto">
+    <div id="game-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-400 pb-6">
+    © 2025 Brain Rush — Keep your mind sharp
+  </footer>
+
+  <script>
+    const games = [
+      { id: 'Schulte', name: 'Schulte Table', description: 'Click numbers 1 to 25 fast!' },
+      { id: 'Sudoku', name: 'Sudoku', description: 'Classic puzzle challenge.' },
+      { id: 'Wack', name: 'Whack-a-Mole', description: 'Smack the mole before it escapes!' },
+      { id: 'MemoryFlip', name: 'Memory Flip', description: 'Find matching pairs quickly!' },
+      { id: 'Skimiki', name: 'Skimiki', description: 'Speed-tapping pattern game.' }
+    ];
+
+    const container = document.getElementById('game-list');
+
+    games.forEach(game => {
+      const card = document.createElement('div');
+      card.className = `bg-white rounded-lg shadow hover:shadow-xl border border-gray-100 p-5 cursor-pointer transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400`;
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <h2 class="text-xl font-bold text-blue-700 mb-1">${game.name}</h2>
+        <p class="text-sm text-gray-600 mb-3">${game.description}</p>
+        <span class="text-sm text-blue-500 font-medium">Play →</span>
+      `;
+      card.addEventListener('click', () => {
+        window.location.href = "Html/" + game.id + ".html";
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+      container.appendChild(card);
+    });
+  </script>
+</body>
+</html>

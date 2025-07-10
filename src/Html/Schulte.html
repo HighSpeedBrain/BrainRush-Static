@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-white font-mono">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Schulte Table</title>
+  <link href="../Lib/tailwind.min.css" rel="stylesheet" />
+  <link rel="icon" href="../assets/favicon.ico" />
+  <style>
+    button {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+<body class="p-8 flex flex-col items-center min-h-screen">
+
+  <button id="backBtn"
+    class="mb-6 text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+    aria-label="Back to Minigame Hub">← Back to Hub</button>
+
+  <h1 class="mb-2 text-2xl font-semibold text-center text-gray-900">Schulte Table</h1>
+  <p class="mb-4 text-gray-700">Click numbers in order as fast as you can!</p>
+
+  <!-- Difficulty Buttons -->
+  <div class="flex gap-4 mb-6">
+    <button data-diff="easy" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Easy</button>
+    <button data-diff="medium" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Medium</button>
+    <button data-diff="hard" class="diffBtn px-4 py-2 rounded bg-gray-300 text-black">Hard</button>
+  </div>
+
+  <div class="mb-4 text-lg font-semibold text-gray-900">
+    Time: <span id="timer">0.00</span> seconds
+  </div>
+  <div class="mb-6 text-lg font-semibold text-gray-900">
+    Best Time: <span id="best-time">--</span> seconds
+  </div>
+
+  <button id="startBtn"
+    class="mb-8 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+    Start Game
+  </button>
+
+  <div id="schulte-grid"
+    class="gap-2 justify-center mb-6 hidden"
+    role="grid"
+    aria-label="Schulte Table"
+    style="display: grid;">
+  </div>
+
+  <button id="restartBtn"
+    class="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 hidden">
+    Restart
+  </button>
+
+  <script>
+    const grid = document.getElementById("schulte-grid");
+    const timerEl = document.getElementById("timer");
+    const bestTimeEl = document.getElementById("best-time");
+    const backBtn = document.getElementById("backBtn");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const diffBtns = document.querySelectorAll(".diffBtn");
+
+    let gridSize = 25;
+    let gridCols = 5;
+    let difficulty = "medium";
+    let numbers = [];
+    let currentNumber = 1;
+    let startTime = null;
+    let timerInterval = null;
+
+    const diffSettings = {
+      easy: { size: 16, cols: 4 },
+      medium: { size: 25, cols: 5 },
+      hard: { size: 36, cols: 6 },
+    };
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function startTimer() {
+      startTime = performance.now();
+      timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - startTime) / 1000;
+        timerEl.textContent = elapsed.toFixed(2);
+      }, 50);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function getBestTime() {
+      return localStorage.getItem("schulteBestTime_" + difficulty);
+    }
+
+    function setBestTime(time) {
+      localStorage.setItem("schulteBestTime_" + difficulty, time);
+      bestTimeEl.textContent = time.toFixed(2);
+    }
+
+    function loadBestTime() {
+      const best = getBestTime();
+      bestTimeEl.textContent = best ? parseFloat(best).toFixed(2) : "--";
+    }
+
+    function renderGrid() {
+      grid.innerHTML = "";
+
+      // Apply grid-template-columns via style
+      grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
+
+      numbers.forEach(num => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = num;
+        btn.className =
+          "w-14 h-14 text-lg rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400";
+        btn.setAttribute("aria-label", `Number ${num}`);
+
+        btn.addEventListener("click", () => {
+          if (num !== currentNumber) return;
+
+          btn.classList.add("bg-gray-300", "text-gray-400", "cursor-default");
+          btn.disabled = true;
+          btn.blur();
+
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (currentNumber === 1) startTimer();
+              currentNumber++;
+              if (currentNumber > gridSize) {
+                stopTimer();
+                setTimeout(() => {
+                  const time = parseFloat(timerEl.textContent);
+                  alert(`🎉 Your time: ${time.toFixed(2)} seconds`);
+                  const best = parseFloat(getBestTime()) || Infinity;
+                  if (time < best) setBestTime(time);
+                  restartBtn.classList.remove("hidden");
+                }, 50);
+              }
+            }, 0);
+          });
+        });
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function startGame() {
+      startBtn.classList.add("hidden");
+      grid.classList.remove("hidden");
+      restartBtn.classList.add("hidden");
+      document.querySelector(".diffBtn").parentElement.classList.add("hidden"); // 👈 hides the diff buttons
+      currentNumber = 1;
+      timerEl.textContent = "0.00";
+      if (timerInterval) clearInterval(timerInterval);
+
+      numbers = Array.from({ length: gridSize }, (_, i) => i + 1);
+      shuffleArray(numbers);
+      renderGrid();
+    }
+
+
+    function setDifficulty(level) {
+      difficulty = level;
+      gridSize = diffSettings[level].size;
+      gridCols = diffSettings[level].cols;
+
+      diffBtns.forEach(btn => {
+        if (btn.dataset.diff === level) {
+          btn.classList.remove("bg-gray-300", "text-black");
+          btn.classList.add("bg-blue-600", "text-white");
+        } else {
+          btn.classList.remove("bg-blue-600", "text-white");
+          btn.classList.add("bg-gray-300", "text-black");
+        }
+      });
+
+      loadBestTime();
+    }
+
+    restartBtn.addEventListener("click", startGame);
+    startBtn.addEventListener("click", startGame);
+    backBtn.addEventListener("click", () => window.location.href = "../index.html");
+    diffBtns.forEach(btn =>
+      btn.addEventListener("click", () => setDifficulty(btn.dataset.diff))
+    );
+
+    setDifficulty("medium");
+  </script>
+
+</body>
+</html>
