@@ -60,6 +60,7 @@ try {
 } catch {
     EchoError $_.Exception.Message
 } finally {
-    Set-Location -
+    Set-Location ../../
     EchoInfo "Returned to original directory."
+    adb install .\AppDebug.apk
 }

@@ -22,7 +22,7 @@
         <img src="../assets/favicon.ico" alt="Brain Rush Logo" class="w-10 h-10" />
         <h1 class="text-2xl font-bold text-blue-700 tracking-tight">Schulte Table</h1>
       </div>
-      <button onclick="location.href='../index.html'" class="text-sm text-blue-500 font-medium">
+      <button onclick="location.href='../'" class="text-sm text-blue-500 font-medium">
         ← Back to Hub
       </button>
     </div>
@@ -131,6 +131,8 @@
     }
 
     function renderGrid() {
+      const colors = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899"];
+
       grid.innerHTML = "";
       grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
 
@@ -138,14 +140,24 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = num;
+
+        // Pick a random background color from the list
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        btn.style.backgroundColor = color;
+
+        // Add necessary classes
         btn.className =
-          "w-14 h-14 text-lg rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400";
+          "w-14 h-14 text-lg rounded text-white hover:brightness-90 focus:outline-none focus:ring-2 focus:ring-white";
+
         btn.setAttribute("aria-label", `Number ${num}`);
 
         btn.addEventListener("click", () => {
           if (num !== currentNumber) return;
 
-          btn.classList.add("bg-gray-300", "text-gray-400", "cursor-default");
+          // Visually disable the button
+          btn.style.backgroundColor = "#E5E7EB"; // Tailwind's gray-200
+          btn.style.color = "#9CA3AF";           // Tailwind's gray-400
+          btn.classList.add("cursor-default");
           btn.disabled = true;
           btn.blur();
 
@@ -167,6 +179,7 @@
         grid.appendChild(btn);
       });
     }
+
 
     function startGame() {
       startBtn.classList.add("hidden");

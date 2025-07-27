@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./Lib/tailwind.min.css" rel="stylesheet" media="all"/>
   <title>Brain Rush</title>
   <link rel="icon" href="/assets/favicon.ico" />
-  <link href="./Lib/tailwind.min.css" rel="stylesheet" />
   <style>
     button {
       -webkit-tap-highlight-color: transparent;
@@ -36,26 +37,9 @@
     © 2025 Brain Rush — Keep your mind sharp
   </footer>
 
-  <script>
-    const games = [
-      { id: 'Schulte', name: 'Schulte Table', description: 'Click numbers 1 to 25 fast!' },
-      { id: 'Sudoku', name: 'Sudoku', description: 'Classic puzzle challenge.' },
-      { id: 'Wack', name: 'Whack-a-Mole', description: 'Smack the mole before it escapes!' },
-      { id: 'MemoryFlip', name: 'Memory Flip', description: 'Find matching pairs quickly!' },
-      { id: 'Skimiki', name: 'Skimiki', description: 'Speed-tapping pattern game.' },
-      { id: 'Schulte', name: 'Schulte Table', description: 'Click numbers 1 to 25 fast!' },
-      { id: 'Sudoku', name: 'Sudoku', description: 'Classic puzzle challenge.' },
-      { id: 'Wack', name: 'Whack-a-Mole', description: 'Smack the mole before it escapes!' },
-      { id: 'MemoryFlip', name: 'Memory Flip', description: 'Find matching pairs quickly!' },
-      { id: 'Skimiki', name: 'Skimiki', description: 'Speed-tapping pattern game.' },
-      { id: 'Schulte', name: 'Schulte Table', description: 'Click numbers 1 to 25 fast!' },
-      { id: 'Sudoku', name: 'Sudoku', description: 'Classic puzzle challenge.' },
-      { id: 'Wack', name: 'Whack-a-Mole', description: 'Smack the mole before it escapes!' },
-      { id: 'MemoryFlip', name: 'Memory Flip', description: 'Find matching pairs quickly!' },
-      { id: 'Skimiki', name: 'Skimiki', description: 'Speed-tapping pattern game.' },
-      
-    ];
-
+  <script type="module" defer>
+    const response = await fetch('./assets/gameData.json')
+    const games = await response.json()
     const container = document.getElementById('game-list');
 
     games.forEach(game => {
@@ -63,9 +47,13 @@
       card.className = `bg-white rounded-lg shadow hover:shadow-xl border border-gray-100 p-5 cursor-pointer transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400`;
       card.tabIndex = 0;
       card.innerHTML = `
-        <h2 class="text-xl font-bold text-blue-700 mb-1">${game.name}</h2>
-        <p class="text-sm text-gray-600 mb-3">${game.description}</p>
-        <span class="text-sm text-blue-500 font-medium">Play →</span>
+      <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 overflow-hidden">
+        <img src="${game.icon}" alt="${game.name} Icon" class="w-full h-36 object-cover">
+        <div class="p-5">
+          <h2 class="text-xl font-bold text-gray-800 mb-2">${game.name}</h2>
+          <p class="text-sm text-gray-600">${game.description}</p>
+        </div>
+      </div>
       `;
       card.addEventListener('click', () => {
         window.location.href = "Html/" + game.id + ".html";
@@ -80,4 +68,5 @@
     });
   </script>
 </body>
+
 </html>

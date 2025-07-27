@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,19 +12,21 @@
       background-color: #fef3c7;
       font-size: 2rem;
     }
+
     .hole {
       background-color: #d1d5db;
     }
   </style>
 </head>
+
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
   <!-- Header -->
   <header class="bg-white shadow-md py-4 px-6 flex items-center justify-between sticky top-0 z-10">
     <div class="flex items-center space-x-3">
       <img src="../assets/favicon.ico" alt="Brain Rush Logo" class="w-10 h-10" />
-      <h1 class="text-2xl font-bold text-yellow-900 tracking-tight">Whack-a-Mole</h1>
+      <h1 class="text-2xl font-bold text-blue-700 tracking-tight">Whack-a-Mole</h1>
     </div>
-    <button onclick="location.href='../index.html'" class="text-sm text-blue-500 font-medium">← Back to Hub</button>
+    <button onclick="location.href='../'" class="text-sm text-blue-500 font-medium">← Back to Hub</button>
   </header>
 
   <main class="flex-grow px-4 sm:px-8 py-8 max-w-5xl mx-auto flex flex-col items-center">
@@ -39,13 +42,16 @@
       </div>
     </div>
 
-    <div id="grid" class="grid grid-cols-3 gap-4 mb-6"></div>
+    <div id="grid" class="grid grid-cols-3 gap-4 mb-6">
+      <!--Place Holder For The Mole Grid-->
+    </div>
 
-    <div class="flex gap-4">
-      <button id="startBtn" class="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 shadow-md">
+    <div class="flex gap-4" id="cool">
+      <button onclick="startGame()" id="startBtn"
+        class="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 shadow-md">
         🎮 Start Game
       </button>
-      <button onclick="resetGame()" class="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md">
+      <button id="reset" onclick="resetGame()" class="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md">
         🔄 Restart
       </button>
     </div>
@@ -65,20 +71,25 @@
     const missesEl = document.getElementById("misses");
     const startBtn = document.getElementById("startBtn");
 
-    let score = 0, time = 120, moleIndex = -1;
-    let gameTimer = null, moleTimer = null;
-    let combo = 0, baseDelay = 800, currentDelay = baseDelay;
-    let hits = 0, misses = 0;
+    let score = 0
+    let time = 120
+    let gameTimer = null
+    let combo = 0
+    let baseDelay = 800
+    let currentDelay = baseDelay;
+    let hits = 0
+    let misses = 0;
     let gameStarted = false;
     const gridSize = 9;
+
 
     function createGrid() {
       grid.innerHTML = '';
       for (let i = 0; i < gridSize; i++) {
         const btn = document.createElement("button");
-        btn.className = "w-24 h-24 rounded-lg hole shadow-inner transition-all duration-100 text-2xl";
+        btn.className = "w-24 h-24 rounded-lg hole shadow-inner transition-all duration-100 text-2xl " + `${i}`;
         btn.dataset.index = i;
-        btn.addEventListener("click", () => handleClick(i, btn));
+        btn.addEventListener("click", () => handleClick(btn));
         grid.appendChild(btn);
       }
     }
@@ -92,100 +103,97 @@
       missesEl.textContent = misses;
     }
 
+    updateStats()
+
     function spawnNewMole() {
-      if (!gameStarted) return;
-
       const buttons = grid.querySelectorAll("button");
-
-      if (moleIndex !== -1) {
-        combo = 0;
-        misses++;
-        time = Math.max(0, time - 2);
-        currentDelay = Math.min(1200, currentDelay + 100);
-      }
+      const moleLoc = Math.floor(Math.random() * (buttons.length))
 
       buttons.forEach(btn => {
-        btn.classList.remove("mole");
-        btn.classList.add("hole");
-        btn.textContent = "";
-      });
 
-      moleIndex = Math.floor(Math.random() * gridSize);
-      const moleBtn = buttons[moleIndex];
+        btn.classList.add("hole");
+        btn.classList.remove("mole");
+        btn.textContent = "";
+
+      })
+
+      const moleBtn = buttons[moleLoc]
+      if (!moleBtn) return;
+
       moleBtn.classList.remove("hole");
       moleBtn.classList.add("mole");
       moleBtn.textContent = "🐹";
-
-      updateStats();
-
-      clearTimeout(moleTimer);
-      moleTimer = setTimeout(spawnNewMole, currentDelay);
     }
 
-    function handleClick(index, btn) {
-      if (!gameStarted) return;
 
-      if (index === moleIndex) {
+    function handleClick(btn) {
+      if (btn.classList.contains("mole")) {
         combo++;
         hits++;
         score += 1 + combo * 0.1;
-        currentDelay = Math.max(300, currentDelay - 50);
-        moleIndex = -1;
-
-        btn.classList.remove("mole");
-        btn.classList.add("hole");
-        btn.textContent = "";
-
-        updateStats();
-        clearTimeout(moleTimer);
-        moleTimer = setTimeout(spawnNewMole, currentDelay);
+        currentDelay = Math.max(0, currentDelay - 50);
       } else {
         score = Math.max(0, score - 1);
         combo = 0;
         misses++;
         time = Math.max(0, time - 2);
         currentDelay = Math.min(1200, currentDelay + 100);
-        updateStats();
       }
+      updateStats();
+    }
+
+    let moleTimeout = null;
+
+    function spawnMoleLoop() {
+      spawnNewMole();
+
+      moleTimeout = setTimeout(() => {
+        spawnMoleLoop(); // re-run with updated delay
+      }, currentDelay);
     }
 
     function startGame() {
       resetGame();
-      gameStarted = true;
-      createGrid();
       updateStats();
-      spawnNewMole();
+      gameStarted = true;
+      createGrid()
+
+      spawnMoleLoop();
+      startBtn.remove() // start mole spawner
 
       gameTimer = setInterval(() => {
         time--;
         updateStats();
-        if (time <= 0) {
+
+        if (time == 0) {
           clearInterval(gameTimer);
-          clearTimeout(moleTimer);
-          gameStarted = false;
-          moleIndex = -1;
-          alert("⏰ Time's up! Final Score: " + Math.floor(score));
-        }
+          clearTimeout(moleTimeout);
+          alert(`⏰ Time's up! Final score: ${Math.floor(score)}`);
+          resetGame()
+          }
       }, 1000);
     }
 
+
+
+    //the fuck man, who wrote this piece of crap
+
     function resetGame() {
-      clearInterval(gameTimer);
-      clearTimeout(moleTimer);
-      moleIndex = -1;
       time = 120;
       score = 0;
       combo = 0;
       hits = 0;
       misses = 0;
       currentDelay = baseDelay;
-      gameStarted = false;
       updateStats();
-      createGrid();
+      const div = document.getElementById("cool")
+      const reset = document.getElementById("reset")
+      reset.remove()
+      div.append(startBtn)
+      div.append(reset)
+      grid.innerHTML=''
     }
-
-    startBtn.addEventListener("click", startGame);
-    createGrid();
   </script>
 </body>
+
 </html>

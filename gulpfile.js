@@ -6,17 +6,12 @@ import { spawn } from "child_process";
 
 // Clean output folder
 export function clean() {
-  return deleteAsync(["www/**", "!www"]);
+    return deleteAsync(["www/Html", "www/lib","www/index.html", "!www"]);
 }
-
-
 
 // HTML minification with full JS support
 export function html() {
-  a++
-    if (a >= 1){
-    gulp.parallel(tailwind)
-  }
+  gulp.parallel(tailwind)
   return gulp
     .src("src/**/*.html", { base: "src" })
     .pipe(
@@ -64,6 +59,7 @@ export function tailwind(done) {
   });
 }
 
+
 // Full build
 export const build = gulp.series(
   clean,
@@ -71,7 +67,6 @@ export const build = gulp.series(
 );
 
 // Watch
-let a = 1;
 export function watch() {
   gulp.watch("src/**/*.html", html);
   gulp.watch(["src/Lib/tailwind.css","./tailwind.config.js"], tailwind);
